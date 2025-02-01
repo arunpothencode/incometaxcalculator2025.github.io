@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>India Income Tax Calculator - 2025</title>
+  <style>
+    /* Reset & basic styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+      color: #333;
+    }
+    /* Header with blue gradient background */
+    header {
+      background: linear-gradient(135deg, #1565c0, #0d47a1);
+      padding: 60px 20px;
+      text-align: center;
+      color: #fff;
+    }
+    header h1 {
+      font-size: 3rem;
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.6);
+    }
+    /* Main container */
+    .container {
+      max-width: 1200px;
+      margin: 30px auto;
+      padding: 20px;
+    }
+    /* Input section styling */
+    .input-section {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    .input-section p {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+    }
+    .input-section input {
+      width: 300px;
+      padding: 10px;
+      font-size: 1.1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin: 10px;
+    }
+    .input-section button {
+      padding: 10px 20px;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 5px;
+      background: #1976d2;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .input-section button:hover {
+      background: #0d47a1;
+    }
+    /* Results Section with cards */
+    .results {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      overflow: hidden;
+      width: 100%;
+      max-width: 550px;
+    }
+    .card-header {
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 1.8rem;
+      font-weight: bold;
+    }
+    /* Blue themed header colors for each regime */
+    #defaultRegime .card-header {
+      background: linear-gradient(135deg, #42a5f5, #1e88e5);
+    }
+    #fy2024Regime .card-header {
+      background: linear-gradient(135deg, #64b5f6, #42a5f5);
+    }
+    .card-body {
+      padding: 20px;
+    }
+    .tax-info {
+      font-size: 1.1rem;
+      margin-bottom: 15px;
+      line-height: 1.6;
+    }
+    .tax-info strong {
+      color: #0277bd;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    table th, table td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+    table th {
+      background: #1565c0;
+      color: #fff;
+    }
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 2rem;
+      }
+      .input-section input {
+        width: 90%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>India Income Tax Calculator - 2025</h1>
+  </header>
+  <div class="container">
+    <div class="input-section">
+      <p>Enter your annual income (in rupees):</p>
+      <input type="number" id="income" placeholder="e.g., 1000000">
+      <br>
+      <button onclick="calculate()">Calculate Tax for Both Regimes</button>
+    </div>
+    <div class="results">
+      <!-- Default Regime Card -->
+      <div class="card" id="defaultRegime">
+        <div class="card-header">
+          FY 2025-26 Regime
+        </div>
+        <div class="card-body">
+          <div class="tax-info" id="defaultTaxInfo"></div>
+          <div id="defaultBreakdown"></div>
+        </div>
+      </div>
+      <!-- FY 2024-25 Regime Card -->
+      <div class="card" id="fy2024Regime">
+        <div class="card-header">
+          FY 2024-25 Regime
+        </div>
+        <div class="card-body">
+          <div class="tax-info" id="fy2024TaxInfo"></div>
+          <div id="fy2024Breakdown"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Define tax regimes with slabs and standard deductions.
+    const regimes = {
+      default: {
+        standardDeduction: 75000,
+        slabs: [
+          { lower: 0, upper: 400000, rate: 0 },
+          { lower: 400000, upper: 800000, rate: 5 },
+          { lower: 800000, upper: 1200000, rate: 10 },
+          { lower: 1200000, upper: 1600000, rate: 15 },
+          { lower: 1600000, upper: 2000000, rate: 20 },
+          { lower: 2000000, upper: 2400000, rate: 25 },
+          { lower: 2400000, upper: Infinity, rate: 30 },
+        ]
+      },
+      fy2024: {
+        standardDeduction: 50000,
+        slabs: [
+          { lower: 0, upper: 300000, rate: 0 },
+          { lower: 300000, upper: 700000, rate: 5 },
+          { lower: 700000, upper: 1000000, rate: 10 },
+          { lower: 1000000, upper: 1200000, rate: 15 },
+          { lower: 1200000, upper: 1500000, rate: 20 },
+          { lower: 1500000, upper: Infinity, rate: 30 },
+        ]
+      }
+    };
+
+    // Function to calculate tax on full income and build a breakdown.
+    function calculateTax(income, slabs) {
+      let totalTax = 0;
+      let breakdown = [];
+      slabs.forEach(slab => {
+        if (income > slab.lower) {
+          const amountInSlab = Math.min(income, slab.upper) - slab.lower;
+          const taxForSlab = amountInSlab * (slab.rate / 100);
+          totalTax += taxForSlab;
+          breakdown.push({
+            range: `Rs. ${(slab.lower / 100000).toFixed(1)} L to ${slab.upper === Infinity ? 'above' : ('Rs. ' + (slab.upper / 100000).toFixed(1) + ' L')}`,
+            taxableAmount: amountInSlab,
+            rate: slab.rate,
+            tax: taxForSlab
+          });
+        }
+      });
+      return { totalTax, breakdown };
+    }
+
+    function formatCurrency(amount) {
+      return 'Rs. ' + amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    // Main calculation function for both regimes.
+    function calculate() {
+      const income = parseFloat(document.getElementById('income').value);
+      if (isNaN(income) || income < 0) {
+        alert('Please enter a valid income.');
+        return;
+      }
+      
+      // Process each regime.
+      Object.keys(regimes).forEach(key => {
+        const regime = regimes[key];
+        // Calculate tax on full income using the defined slabs.
+        const { totalTax, breakdown } = calculateTax(income, regime.slabs);
+        // Subtract standard deduction from the computed tax.
+        const finalTax = Math.max(totalTax - regime.standardDeduction, 0);
+        
+        // Build information display.
+        const infoText = `<p>Full Income: <strong>${formatCurrency(income)}</strong></p>
+                          <p>Computed Tax: <strong>${formatCurrency(totalTax)}</strong></p>
+                          <p>Standard Deduction: <strong>${formatCurrency(regime.standardDeduction)}</strong></p>
+                          <p>Final Tax Payable: <strong>${formatCurrency(finalTax)}</strong></p>`;
+        
+        const taxInfoDiv = document.getElementById(key === 'default' ? 'defaultTaxInfo' : 'fy2024TaxInfo');
+        taxInfoDiv.innerHTML = infoText;
+        
+        // Build the breakdown table.
+        let tableHTML = `<table>
+          <tr>
+            <th>Income Range</th>
+            <th>Amount (Rs.)</th>
+            <th>Rate (%)</th>
+            <th>Tax (Rs.)</th>
+          </tr>`;
+        breakdown.forEach(item => {
+          tableHTML += `<tr>
+            <td>${item.range}</td>
+            <td>${item.taxableAmount.toLocaleString()}</td>
+            <td>${item.rate}</td>
+            <td>${item.tax.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+          </tr>`;
+        });
+        tableHTML += `</table>`;
+        
+        const breakdownDiv = document.getElementById(key === 'default' ? 'defaultBreakdown' : 'fy2024Breakdown');
+        breakdownDiv.innerHTML = tableHTML;
+      });
+    }
+  </script>
+</body>
+</html>
